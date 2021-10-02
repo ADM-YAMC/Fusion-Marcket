@@ -1,0 +1,367 @@
+﻿@page "/Tienda"
+@using FinalAmadis.Data
+@using System.Net
+@using MatBlazor
+@using Newtonsoft.Json
+@inject IJSRuntime JSRuntime
+
+<style>
+    p {
+        color: black;
+    }
+</style>
+<div class="container-fluid mt-2">
+    <div id="carouselExampleCaptions" class="carousel slide" data-ride="carousel">
+        <ol class="carousel-indicators">
+            @if (sliderData != null)
+            {
+
+                int cont = 0;
+                @foreach (var i in sliderData)
+                {
+
+                    var itemDinamico = cont++ == 0 ? "active" : "";
+                    <li data-target="#carouselExampleCaptions" data-slide-to="@cont" class="@itemDinamico"></li>
+                }
+
+            }
+        </ol>
+        <div class="carousel-inner">
+
+            @if (sliderData != null)
+            {
+                int cont = 0;
+                @foreach (var i in sliderData)
+                {
+
+                    var itemDinamico = cont++ == 0 ? "carousel-item active" : "carousel-item";
+                    <div class="@itemDinamico">
+                        <img height="300" src="@i.Recurso" class="img-fluid d-block w-100" alt="..." style="border-radius: 5px;">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>@i.Titulo</h5>
+                        </div>
+                    </div>
+                }
+
+            }
+            else
+            {
+                <div class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden"></span>
+                    </div>
+                </div>
+            }
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleCaptions" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleCaptions" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+    <hr />
+
+    <div class="row">
+        <div class="col-sm">
+            <label for="categorias"> Filtrar por:</label>
+            <select id="Drop" name="categorias" @onchange="Filter" class="form-control w-25">
+                <option value="Todos" selected>Todo</option>
+                @if (Drop != null)
+                {
+                    @foreach (var i in Drop)
+                    {
+                        <option value="@i.Nombre_Categoria"> @i.Nombre_Categoria</option>
+                    }
+                }
+                else
+                {
+                    <option value="" disabled selected>Cargando...</option>
+                }
+            </select>
+        </div>
+    </div>
+
+    <div class="row mt-4 mb-5">
+        @if (Datos != null && Datos.ok != false)
+        {
+            @foreach (var i in Datos.data)
+            {
+                <div class="col p-2">
+                    <div class="card p-2 d-flex justify-content-center">
+                        <div class="card-body  ml-2"  style="height: 375px; width: 280px">
+                            <img class="img-fluid" src="@i.Foto_producto" alt="Alternate Text" style="width: 100%; height: auto" />
+                            <h5 class="mt-5">@i.Nombre_producto</h5>
+                            <div class="row">
+                                <div class="col">
+                                    <h6  class="d-inline">@i.Categoria_producto</h6>
+                                  
+                                </div>
+                                <div class="col">
+                                    <h6 class="d-inline">@i.Precio $RD</h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="background-color: transparent;" class="card-footer">
+                            <button title="Añadir al carrito" data-toggle="modal" data-target="#AgregarProducto" class="btn btn-primary w-100" @onclick="@(async () => await data(i))"><i class="fas fa-shopping-cart"></i></button>
+                        </div>
+                    </div>
+                </div>
+            }
+        } 
+
+    </div>
+</div>
+@if (Datos == null)
+{
+    <div class="d-flex justify-content-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden"></span>
+        </div>
+    </div>
+}
+@if (alerta)
+{
+    <div class="alert alert-danger text-center" role="alert">
+        No se encontraron registros...
+    </div>
+}
+<div class="modal fade" id="AgregarProducto" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Agregar producto</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <h4>@productos.Nombre_producto</h4>
+                        <p>@productos.Categoria_producto</p>
+                        <p>@productos.Precio $RD</p>
+                        <hr>
+                        <h6 class="mb-3 text-success">@productos.Stock Unidad/es disponible/es</h6>
+                    </div>
+                    <div class="col">
+                        <img class="img-fluid ml-4" src="@productos.Foto_producto" style="width: 85%; height: 85%;" alt="producto">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <label>Selecciona la cantidad</label>
+                        @if (productos.Stock != null)
+                        {
+                            <select id="Drop" @bind="cantidad"class="form-control">
+
+                                @if (productos.Stock != null)
+                                {
+                                    for (int i = 1; i <= int.Parse(productos.Stock); i++)
+                                    {
+                                        <option value="@i"> @i</option>
+                                    }
+                                }
+                            </select>
+                        }
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                @if (cantidad <= 0)
+                {
+                    <button type="submit" disabled class="btn btn-primary">Agregar al carrito</button>
+                }
+                else
+                {
+                    <button type="submit" @onclick="AgregarAlCarrito" class="btn btn-primary">Agregar al carrito</button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@code{
+    public dynamic Datos { get; set; }
+    public dynamic Editable { get; set; }
+    public dynamic Drop { get; set; }
+    public AgregarProductos Carrito = new AgregarProductos();
+    string filter;
+    public string jsonString;
+    bool alerta = false;
+    public dynamic sliderData { get; set; }
+    public dynamic StorageData { get; set; }
+    RootProductos productos = new RootProductos();
+    public int cantidad;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            Uri url = new Uri("https://super-mini-market.herokuapp.com/api/Seleccionar_Todo");
+            WebClient client = new WebClient();
+            var data = await client.DownloadStringTaskAsync(url);
+            Datos = JsonConvert.DeserializeObject(data);
+            await Slidermanagement();
+            await DropItems();
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+    protected async Task Reload()
+    {
+        try
+        {
+            Uri url = new Uri("https://super-mini-market.herokuapp.com/api/Seleccionar_Todo");
+            WebClient client = new WebClient();
+            var data = await client.DownloadStringTaskAsync(url);
+            Datos = JsonConvert.DeserializeObject(data);
+            await Slidermanagement();
+            await DropItems();
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+    async Task Filter(ChangeEventArgs e)
+    {
+        try
+        {
+            if (e.Value.ToString() == "Todos")
+            {
+                await Reload();
+            }
+            else
+            {
+                alerta = false;
+                Datos = null;
+                Uri url = new Uri("https://super-mini-market.herokuapp.com/api/Seleccion_Producto_Categoria/" + e.Value.ToString());
+                WebClient client = new WebClient();
+                var data = await client.DownloadStringTaskAsync(url);
+                Datos = JsonConvert.DeserializeObject(data);
+
+                if (Datos.ok == false)
+                {
+                    alerta = true;
+                }
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            try
+            {
+                var storage = await JSRuntime.InvokeAsync<string>("storagePicker");
+                StorageData = JsonConvert.DeserializeObject(storage);
+                StateHasChanged();
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
+
+    public async Task<dynamic> data(dynamic selected)
+    {
+        if (selected != null)
+        {
+            await Task.Delay(10);
+            productos.IdProducto = selected.IdProducto;
+            productos.Nombre_producto = selected.Nombre_producto;
+            productos.Categoria_producto = selected.Categoria_producto;
+            productos.Precio = selected.Precio;
+            productos.Stock = selected.Stock;
+            productos.Foto_producto = selected.Foto_producto;
+            productos.Descripcion_producto = selected.Descripcion_producto;
+
+
+        }
+        return null;
+    }
+    async Task Slidermanagement()
+    {
+
+        try
+        {
+            Uri url = new Uri("https://super-mini-market.herokuapp.com/api/Mostrar_Todos_Slides");
+            WebClient client = new WebClient();
+            var data = await client.DownloadStringTaskAsync(url);
+            sliderData = JsonConvert.DeserializeObject(data);
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+    async Task DropItems()
+    {
+        Uri url = new Uri("https://super-mini-market.herokuapp.com/api/Mostrar_Todas_Categoria");
+        WebClient client = new WebClient();
+        var data = await client.DownloadStringTaskAsync(url);
+        Drop = JsonConvert.DeserializeObject(data);
+    }
+    async Task AgregarAlCarrito()
+    {
+
+        try
+        {
+            Carrito.IdUsuarios = Convert.ToInt32(StorageData.IdUsuario);
+            Carrito.IdProducto = Convert.ToInt32(productos.IdProducto);
+            Carrito.Nombre_producto = productos.Nombre_producto;
+            Carrito.Cantidad = cantidad.ToString();
+            Carrito.Suma_total = (Convert.ToInt32(productos.Precio) * cantidad).ToString();
+            Carrito.Categoria = productos.Categoria_producto;
+            Carrito.Descripcion = productos.Descripcion_producto;
+            Carrito.Foto = productos.Foto_producto;
+            Carrito.N_Stock = (Convert.ToInt32(productos.Stock) - cantidad).ToString();
+
+            jsonString = JsonConvert.SerializeObject(Carrito);
+            Uri url = new Uri("https://super-mini-market.herokuapp.com/api/Registro_Carrito");
+            WebClient client = new WebClient();
+            var data = await client.UploadStringTaskAsync(url, jsonString);
+            Editable = JsonConvert.DeserializeObject(data);
+            if (Editable != null)
+            {
+                await Reload();
+                Carrito = new AgregarProductos();
+                Mensajes();
+            }
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
+    }
+    private async Task Mensajes()
+    {
+        if (Editable.ok == true)
+        {
+            await JSRuntime.InvokeVoidAsync("Confirmar", "success", "¡Exito!", "Los datos se guardaron con exito!");
+        }
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("Confirmar", "error", "Vaya!", "Ocurrio un error...");
+        }
+
+    }
+}

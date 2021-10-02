@@ -1,0 +1,73 @@
+﻿@inherits LayoutComponentBase
+<style>
+      #button-addon1 {
+        color: #ffc371;
+      }
+      
+      .form-control.shadow-0:focus {
+        box-shadow: none;
+      }
+  </style>
+<div class="main">
+    <NavMenu />
+    <div>
+        @Body
+    </div>
+    <!-- Footer -->
+    <footer class="bg-white">
+        <div class="container py-5">
+            <div class="row py-4">
+                <div class="col-lg-4 col-md-6 mb-4 mb-lg-0">
+                    <img src="img/logo.png" alt="" width="180" class="mb-3">
+                    <p class="font-italic text-muted">Fusion Mini Market siempre innovando, lo que no esta aqui no existe en el pais.</p>
+                    <ul class="list-inline mt-4">
+                        <li class="list-inline-item"><a href="https://itla.edu.do" target="_blank" title="twitter"><i class="fa fa-twitter"></i></a></li>
+                        <li class="list-inline-item"><a href="https://itla.edu.do" target="_blank" title="facebook"><i class="fa fa-facebook"></i></a></li>
+                        <li class="list-inline-item"><a href="https://itla.edu.do" target="_blank" title="instagram"><i class="fa fa-instagram"></i></a></li>
+                        <li class="list-inline-item"><a href="https://itla.edu.do" target="_blank" title="pinterest"><i class="fa fa-pinterest"></i></a></li>
+                        <li class="list-inline-item"><a href="https://itla.edu.do" target="_blank" title="vimeo"><i class="fa fa-vimeo"></i></a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h6 class="text-uppercase font-weight-bold mb-4">Tu Tienda</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><a href="/Tienda" class="text-muted">Alimentos</a></li>
+                        <li class="mb-2"><a href="/Tienda" class="text-muted">Frutas</a></li>
+                        <li class="mb-2"><a href="/Tienda" class="text-muted">Hogar</a></li>
+                        <li class="mb-2"><a href="/Tienda" class="text-muted">Ferreteria</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-2 col-md-6 mb-4 mb-lg-0">
+                    <h6 class="text-uppercase font-weight-bold mb-4">Funcionalidades</h6>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2"><a class="text-muted">Logeo</a></li>
+                        <li class="mb-2"><a class="text-muted">Registro</a></li>
+                        <li class="mb-2"><a href="/Tienda" class="text-muted">Catalogos</a></li>
+                        <li class="mb-2"><a href="/Tienda/Carrito" class="text-muted">Carrito</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-4 col-md-6 mb-lg-0">
+                    <h6 class="text-uppercase font-weight-bold mb-4">Informaciones</h6>
+                    <p class="text-muted mb-4"><a target="_blank" href="https://storyset.com/business">Business illustrations by Storyset</a></p>
+                    <div class="p-1 rounded border">
+                        <div class="input-group">
+                            <input type="email" placeholder="Ingrese su correo" aria-describedby="button-addon1" class="form-control border-0 shadow-0">
+                            <div class="input-group-append">
+                                <button id="button-addon1" type="submit" class="btn btn-link"><i class="fa fa-paper-plane"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Copyrights -->
+        <div class="bg-light py-4">
+            <div class="container text-center">
+                <p class="text-muted mb-0 py-2">© 2021 Todos los derechos del Hokage reservados.</p>
+            </div>
+        </div>
+    </footer>
+    <!-- End -->
+</div>
+
